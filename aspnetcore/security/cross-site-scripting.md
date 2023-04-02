@@ -3,8 +3,8 @@ title: Prevent Cross-Site Scripting (XSS) in ASP.NET Core
 author: rick-anderson
 description: Learn about Cross-Site Scripting (XSS) and techniques for addressing this vulnerability in an ASP.NET Core app.
 ms.author: riande
-ms.date: 10/02/2018
-no-loc: [Home, Privacy, Kestrel, appsettings.json, "ASP.NET Core Identity", cookie, Cookie, Blazor, "Blazor Server", "Blazor WebAssembly", "Identity", "Let's Encrypt", Razor, SignalR]
+monikerRange: '>= aspnetcore-3.1'
+ms.date: 2/15/2020
 uid: security/cross-site-scripting
 ---
 # Prevent Cross-Site Scripting (XSS) in ASP.NET Core
@@ -12,6 +12,10 @@ uid: security/cross-site-scripting
 By [Rick Anderson](https://twitter.com/RickAndMSFT)
 
 Cross-Site Scripting (XSS) is a security vulnerability which enables an attacker to place client side scripts (usually JavaScript) into web pages. When other users load affected pages the attacker's scripts will run, enabling the attacker to steal cookies and session tokens, change the contents of the web page through DOM manipulation or redirect the browser to another page. XSS vulnerabilities generally occur when an application takes user input and outputs it to a page without validating, encoding or escaping it.
+
+This article applies primarly to ASP.NET Core MVC with views, Razor Pages, and other apps that return HTML that may be vunerable to XSS. Web APIs that return data in the form of HTML, XML, or JSON can trigger XSS attacks in their client apps if they don't properly sanitize user input, depending in how much trust the client app places in the api. For example, if an API accepts user-generated content and returns it in an HTML response, an attacker could inject malicious scripts into the content that executes when the response is rendered in the user's browser.
+
+To prevent XSS attacks, web APIs should implement input validation and output encoding. Input validation ensures that user input meets expected criteria and doesn't include malicious code. Output encoding ensures that any data returned by the API is properly sanitized so that it can't be executed as code by the user's browser. For more information, see [this GitHub issue](https://github.com/dotnet/AspNetCore.Docs/issues/28789).
 
 ## Protecting your application against XSS
 
@@ -199,6 +203,32 @@ By default encoders use a safe list limited to the Basic Latin Unicode range and
 
 The reasoning behind this is to protect against unknown or future browser bugs (previous browser bugs have tripped up parsing based on the processing of non-English characters). If your web site makes heavy use of non-Latin characters, such as Chinese, Cyrillic or others this is probably not the behavior you want.
 
+:::moniker range=">= aspnetcore-6.0"
+The encoder safe lists can be customized to include Unicode ranges appropriate to the app during startup, in `Program.cs`:
+
+For example, using the default configuration using a Razor HtmlHelper similar to the following:
+
+```html
+<p>This link text is in Chinese: @Html.ActionLink("汉语/漢語", "Index")</p>
+```
+
+The preceding markup is rendered with Chinese text encoded:
+
+```html
+<p>This link text is in Chinese: <a href="/">&#x6C49;&#x8BED;/&#x6F22;&#x8A9E;</a></p>
+```
+
+To widen the characters treated as safe by the encoder, insert the following line into `Program.cs`.:
+
+```csharp
+builder.Services.AddSingleton<HtmlEncoder>(
+     HtmlEncoder.Create(allowedRanges: new[] { UnicodeRanges.BasicLatin,
+                                               UnicodeRanges.CjkUnifiedIdeographs }));
+```
+
+:::moniker-end
+
+:::moniker range="< aspnetcore-6.0"
 You can customize the encoder safe lists to include Unicode ranges appropriate to your application during startup, in `ConfigureServices()`.
 
 For example, using the default configuration you might use a Razor HtmlHelper like so;
@@ -221,6 +251,7 @@ services.AddSingleton<HtmlEncoder>(
                                                UnicodeRanges.CjkUnifiedIdeographs }));
 ```
 
+:::moniker-end
 This example widens the safe list to include the Unicode Range CjkUnifiedIdeographs. The rendered output would now become
 
 ```html

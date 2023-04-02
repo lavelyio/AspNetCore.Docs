@@ -5,13 +5,12 @@ description: Learn how to set up health checks for ASP.NET Core infrastructure, 
 monikerRange: '>= aspnetcore-3.1'
 ms.author: riande
 ms.custom: mvc
-ms.date: 11/09/2021
-no-loc: [Home, Privacy, Kestrel, appsettings.json, "ASP.NET Core Identity", cookie, Cookie, Blazor, "Blazor Server", "Blazor WebAssembly", "Identity", "Let's Encrypt", Razor, SignalR]
+ms.date: 10/19/2022
 uid: host-and-deploy/health-checks
 ---
 # Health checks in ASP.NET Core
 
-By [Glenn Condron](https://github.com/glennc)
+By [Glenn Condron](https://github.com/glennc) and [Juergen Gutsch](https://twitter.com/sharpcms)
 
 :::moniker range=">= aspnetcore-6.0"
 
@@ -31,7 +30,7 @@ For many apps, a basic health probe configuration that reports the app's availab
 
 The basic configuration registers health check services and calls the Health Checks Middleware to respond at a URL endpoint with a health response. By default, no specific health checks are registered to test any particular dependency or subsystem. The app is considered healthy if it can respond at the health endpoint URL. The default response writer writes <xref:Microsoft.Extensions.Diagnostics.HealthChecks.HealthStatus> as a plaintext response to the client. The `HealthStatus` is <xref:Microsoft.Extensions.Diagnostics.HealthChecks.HealthStatus.Healthy?displayProperty=nameWithType>, <xref:Microsoft.Extensions.Diagnostics.HealthChecks.HealthStatus.Degraded?displayProperty=nameWithType>, or <xref:Microsoft.Extensions.Diagnostics.HealthChecks.HealthStatus.Unhealthy?displayProperty=nameWithType>.
 
-Register health check services with <xref:Microsoft.Extensions.DependencyInjection.HealthCheckServiceCollectionExtensions.AddHealthChecks%2A> in *Program.cs*. Create a health check endpoint by calling <xref:Microsoft.AspNetCore.Builder.HealthCheckEndpointRouteBuilderExtensions.MapHealthChecks%2A>.
+Register health check services with <xref:Microsoft.Extensions.DependencyInjection.HealthCheckServiceCollectionExtensions.AddHealthChecks%2A> in `Program.cs`. Create a health check endpoint by calling <xref:Microsoft.AspNetCore.Builder.HealthCheckEndpointRouteBuilderExtensions.MapHealthChecks%2A>.
 
 The following example creates a health check endpoint at `/healthz`:
 
@@ -44,6 +43,8 @@ The following example creates a health check endpoint at `/healthz`:
 ```dockerfile
 HEALTHCHECK CMD curl --fail http://localhost:5000/healthz || exit
 ```
+
+The preceding example uses `curl` to make an HTTP request to the health check endpoint at `/healthz`. `curl` isn't included in the .NET Linux container images, but it can be added by installing the required package in the Dockerfile. Containers that use images based on Alpine Linux can use the included `wget` in place of `curl`.
 
 ## Create health checks
 
@@ -59,7 +60,7 @@ If <xref:Microsoft.Extensions.Diagnostics.HealthChecks.IHealthCheck.CheckHealthA
 
 ## Register health check services
 
-To register a health check service, call <xref:Microsoft.Extensions.DependencyInjection.HealthChecksBuilderAddCheckExtensions.AddCheck%2A> in *Program.cs*:
+To register a health check service, call <xref:Microsoft.Extensions.DependencyInjection.HealthChecksBuilderAddCheckExtensions.AddCheck%2A> in `Program.cs`:
 
 :::code language="csharp" source="health-checks/samples/6.x/HealthChecksSample/Snippets/Program.cs" id="snippet_AddHealthChecks":::
 
@@ -83,7 +84,7 @@ To register the preceding health check, call `AddTypeActivatedCheck` with the in
 
 ## Use Health Checks Routing
 
-In *Program.cs*, call `MapHealthChecks` on the endpoint builder with the endpoint URL or relative path:
+In `Program.cs`, call `MapHealthChecks` on the endpoint builder with the endpoint URL or relative path:
 
 :::code language="csharp" source="health-checks/samples/6.x/HealthChecksSample/Snippets/Program.cs" id="snippet_MapHealthChecks":::
 
@@ -107,7 +108,7 @@ Call <xref:Microsoft.AspNetCore.Builder.AuthorizationEndpointConventionBuilderEx
 
 ### Enable Cross-Origin Requests (CORS)
 
-Although running health checks manually from a browser isn't a common use scenario, CORS Middleware can be enabled by calling `RequireCors` on health checks endpoints. A `RequireCors` overload accepts a CORS policy builder delegate (`CorsPolicyBuilder`) or a policy name. If a policy isn't provided, the default CORS policy is used. For more information, see <xref:security/cors>.
+Although running health checks manually from a browser isn't a common scenario, CORS Middleware can be enabled by calling [`RequireCors`](https://github.com/dotnet/aspnetcore/blob/main/src/Middleware/CORS/src/Infrastructure/CorsEndpointConventionBuilderExtensions.cs#L20-#L40) on the health checks endpoints. The [`RequireCors`](/dotnet/api/microsoft.aspnetcore.builder.corsendpointconventionbuilderextensions.requirecors) overload accepts a CORS policy builder delegate (`CorsPolicyBuilder`) or a policy name. For more information, see <xref:security/cors>.
 
 ## Health check options
 
@@ -201,7 +202,7 @@ The `StartupHealthCheck` reports the completion of the long-running startup task
 
 :::code language="csharp" source="health-checks/samples/6.x/HealthChecksSample/HealthChecks/StartupHealthCheck.cs" id="snippet_Class" highlight="5-9":::
 
-The health check is registered with <xref:Microsoft.Extensions.DependencyInjection.HealthChecksBuilderAddCheckExtensions.AddCheck%2A> in *Program.cs* along with the hosted service. Because the hosted service must set the property on the health check, the health check is also registered in the service container as a singleton:
+The health check is registered with <xref:Microsoft.Extensions.DependencyInjection.HealthChecksBuilderAddCheckExtensions.AddCheck%2A> in `Program.cs` along with the hosted service. Because the hosted service must set the property on the health check, the health check is also registered in the service container as a singleton:
 
 :::code language="csharp" source="health-checks/samples/6.x/HealthChecksSample/Snippets/Program.cs" id="snippet_AddHealthChecksReadinessLiveness":::
 
@@ -212,7 +213,7 @@ To create two different health check endpoints, call `MapHealthChecks` twice:
 The preceding example creates the following health check endpoints:
 
 * `/healthz/ready` for the readiness check. The readiness check filters health checks to those tagged with `ready`.
-* `/healthz/live` for the liveness check. The liveness check filters out all health checks by returning `false` in the <xref:Microsoft.AspNetCore.Diagnostics.HealthChecks.HealthCheckOptions.Predicate%2A?displayProperty=nameWithType> delegate. For more information on filtering health checks, see [Filter health checks](#filter-health-checks)) in this article.
+* `/healthz/live` for the liveness check. The liveness check filters out all health checks by returning `false` in the <xref:Microsoft.AspNetCore.Diagnostics.HealthChecks.HealthCheckOptions.Predicate%2A?displayProperty=nameWithType> delegate. For more information on filtering health checks, see [Filter health checks](#filter-health-checks) in this article.
 
 Before the startup task completes, the `/healthz/ready` endpoint reports an `Unhealthy` status. Once the startup task completes, this endpoint reports a `Healthy` status. The `/healthz/live` endpoint excludes all checks and reports a `Healthy` status for all calls.
 
@@ -229,7 +230,7 @@ spec:
     readinessProbe:
       # an http probe
       httpGet:
-        path: /health/ready
+        path: /healthz/ready
         port: 80
       # length of time to wait for a pod to initialize
       # after pod startup, before applying health checking
@@ -245,7 +246,7 @@ To distribute a health check as a library:
 
 1. Write a health check that implements the <xref:Microsoft.Extensions.Diagnostics.HealthChecks.IHealthCheck> interface as a standalone class. The class can rely on [dependency injection (DI)](xref:fundamentals/dependency-injection), type activation, and [named options](xref:fundamentals/configuration/options) to access configuration data.
 
-1. Write an extension method with parameters that the consuming app calls in its *Program.cs* method. Consider the following example health check, which accepts `arg1` and `arg2` as constructor parameters:
+1. Write an extension method with parameters that the consuming app calls in its `Program.cs` method. Consider the following example health check, which accepts `arg1` and `arg2` as constructor parameters:
 
    :::code language="csharp" source="health-checks/samples/6.x/HealthChecksSample/HealthChecks/SampleHealthCheckWithArgs.cs" id="snippet_ctor":::
 
@@ -284,6 +285,18 @@ The following example registers a health check publisher as a singleton and conf
 > [`AspNetCore.Diagnostics.HealthChecks`](https://github.com/Xabaril/AspNetCore.Diagnostics.HealthChecks) includes publishers for several systems, including [Application Insights](/azure/application-insights/app-insights-overview).
 >
 > [`AspNetCore.Diagnostics.HealthChecks`](https://github.com/Xabaril/AspNetCore.Diagnostics.HealthChecks) isn't maintained or supported by Microsoft.
+
+## Dependency Injection and Health Checks
+
+It's possible to use dependency injection to consume an instance of a specific `Type` inside a Health Check class. Dependency injection can be useful to inject options or a global configuration to a Health Check. Using dependency injection is ***not*** a common scenario to configure Health Checks. Usually, each Health Check is quite specific to the actual test and is configured using `IHealthChecksBuilder` extension methods.
+
+The following example shows a sample Health Check that retrieves a configuration object via dependency injection:
+
+:::code language="csharp" source="health-checks/samples/7.x/HealthChecksSample/HealthChecks/SampleHealthCheckWithDI.cs" id="snippet_Class":::
+
+The `SampleHealthCheckWithDiConfig` and the Health check needs to be added to the service container :
+
+:::code language="csharp" source="health-checks/samples/7.x/HealthChecksSample/Snippets/Program.cs" id="snippet_MapHealthChecksUsingDependencyInjection":::
 
 ## Additional resources
 

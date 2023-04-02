@@ -6,7 +6,6 @@ monikerRange: '>= aspnetcore-3.1'
 ms.author: riande
 ms.custom: mvc
 ms.date: 11/09/2021
-no-loc: [Home, Privacy, Kestrel, appsettings.json, "ASP.NET Core Identity", cookie, Cookie, Blazor, "Blazor Server", "Blazor WebAssembly", "Identity", "Let's Encrypt", Razor, SignalR]
 uid: fundamentals/host/generic-host
 ---
 # .NET Generic Host in ASP.NET Core
@@ -34,7 +33,7 @@ Including all of the app's interdependent resources in one object enables contro
 
 ## Set up a host
 
-The host is typically configured, built, and run by code in the *Program.cs*. The following code creates a host with an `IHostedService` implementation added to the DI container:
+The host is typically configured, built, and run by code in the `Program.cs`. The following code creates a host with an `IHostedService` implementation added to the DI container:
 
 :::code language="csharp" source="generic-host/samples/6.x/GenericHostSample/Program.cs" id="snippet_Host":::
 
@@ -51,8 +50,8 @@ The <xref:Microsoft.Extensions.Hosting.Host.CreateDefaultBuilder%2A> method:
   * Environment variables prefixed with `DOTNET_`.
   * Command-line arguments.
 * Loads app configuration from:
-  * *appsettings.json*.
-  * *appsettings.{Environment}.json*.
+  * `appsettings.json`.
+  * `appsettings.{Environment}.json`.
   * [User secrets](xref:security/app-secrets) when the app runs in the `Development` environment.
   * Environment variables.
   * Command-line arguments.
@@ -206,7 +205,7 @@ To set this value, use the environment variable or configure `HostOptions`. The 
 
 ### Disable app configuration reload on change
 
-By [default](xref:fundamentals/configuration/index#default), *appsettings.json* and *appsettings.{Environment}.json* are reloaded when the file changes. To disable this reload behavior in ASP.NET Core 5.0 or later, set the `hostBuilder:reloadConfigOnChange` key to `false`.
+By [default](xref:fundamentals/configuration/index#default), `appsettings.json` and `appsettings.{Environment}.json` are reloaded when the file changes. To disable this reload behavior in ASP.NET Core 5.0 or later, set the `hostBuilder:reloadConfigOnChange` key to `false`.
 
 **Key**: `hostBuilder:reloadConfigOnChange`  
 **Type**: `bool` (`true` or `false`)  
@@ -502,8 +501,8 @@ The <xref:Microsoft.Extensions.Hosting.Host.CreateDefaultBuilder%2A> method:
   * Environment variables prefixed with `DOTNET_`.
   * Command-line arguments.
 * Loads app configuration from:
-  * *appsettings.json*.
-  * *appsettings.{Environment}.json*.
+  * `appsettings.json`.
+  * `appsettings.{Environment}.json`.
   * [User secrets](xref:security/app-secrets) when the app runs in the `Development` environment.
   * Environment variables.
   * Command-line arguments.
@@ -659,7 +658,7 @@ To set this value, use the environment variable or configure `HostOptions`. The 
 
 ### Disable app configuration reload on change
 
-By [default](xref:fundamentals/configuration/index#default), *appsettings.json* and *appsettings.{Environment}.json* are reloaded when the file changes. To disable this reload behavior in ASP.NET Core 5.0 or later, set the `hostBuilder:reloadConfigOnChange` key to `false`.
+By [default](xref:fundamentals/configuration/index#default), `appsettings.json` and `appsettings.{Environment}.json` are reloaded when the file changes. To disable this reload behavior in ASP.NET Core 5.0 or later, set the `hostBuilder:reloadConfigOnChange` key to `false`.
 
 **Key**: `hostBuilder:reloadConfigOnChange`  
 **Type**: `bool` (`true` or `false`)  
@@ -1020,8 +1019,8 @@ The <xref:Microsoft.Extensions.Hosting.Host.CreateDefaultBuilder%2A> method:
   * Environment variables prefixed with `DOTNET_`.
   * Command-line arguments.
 * Loads app configuration from:
-  * *appsettings.json*.
-  * *appsettings.{Environment}.json*.
+  * `appsettings.json`.
+  * `appsettings.{Environment}.json`.
   * [User secrets](xref:security/app-secrets) when the app runs in the `Development` environment.
   * Environment variables.
   * Command-line arguments.

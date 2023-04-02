@@ -5,12 +5,11 @@ description: Learn how ASP.NET Core implements dependency injection and how to u
 ms.author: riande
 ms.custom: mvc
 ms.date: 11/21/2021
-no-loc: [Home, Privacy, Kestrel, appsettings.json, "ASP.NET Core Identity", Blazor, "Blazor Server", "Blazor WebAssembly", "Identity", "Let's Encrypt", Razor, SignalR]
 uid: fundamentals/dependency-injection
 ---
 # Dependency injection in ASP.NET Core
 
-::: moniker range=">= aspnetcore-6.0"
+:::moniker range=">= aspnetcore-6.0"
 
 By [Kirk Larkin](https://twitter.com/serpent5), [Steve Smith](https://ardalis.com/), and [Brandon Dahler](https://github.com/brandondahler)
 
@@ -45,7 +44,7 @@ The class creates and directly depends on the `MyDependency` class. Code depende
 Dependency injection addresses these problems through:
 
 * The use of an interface or base class to abstract the dependency implementation.
-* Registration of the dependency in a service container. ASP.NET Core provides a built-in service container, <xref:System.IServiceProvider>. Services are typically registered in the app's *Program.cs* file.
+* Registration of the dependency in a service container. ASP.NET Core provides a built-in service container, <xref:System.IServiceProvider>. Services are typically registered in the app's `Program.cs` file.
 * *Injection* of the service into the constructor of the class where it's used. The framework takes on the responsibility of creating an instance of the dependency and disposing of it when it's no longer needed.
 
 In the [sample app](https://github.com/dotnet/AspNetCore.Docs/tree/main/aspnetcore/fundamentals/dependency-injection/samples/6.x), the `IMyDependency` interface defines the `WriteMessage` method:
@@ -73,7 +72,7 @@ The implementation of the `IMyDependency` interface can be improved by using the
 
 [!code-csharp[](dependency-injection/samples/6.x/DependencyInjectionSample/Services/MyDependency.cs?name=snippet2)]
 
-The updated *Program.cs* registers the new `IMyDependency` implementation:
+The updated `Program.cs` registers the new `IMyDependency` implementation:
 
 [!code-csharp[](dependency-injection/samples/6.x/DependencyInjectionSample/Program.cs?name=snippet2)]
 
@@ -81,7 +80,7 @@ The updated *Program.cs* registers the new `IMyDependency` implementation:
 
 It's not unusual to use dependency injection in a chained fashion. Each requested dependency in turn requests its own dependencies. The container resolves the dependencies in the graph and returns the fully resolved service. The collective set of dependencies that must be resolved is typically referred to as a *dependency tree*, *dependency graph*, or *object graph*.
 
-The container resolves `ILogger<TCategoryName>` by taking advantage of [(generic) open types](/dotnet/csharp/language-reference/language-specification/types#open-and-closed-types), eliminating the need to register every [(generic) constructed type](/dotnet/csharp/language-reference/language-specification/types#constructed-types).
+The container resolves `ILogger<TCategoryName>` by taking advantage of [(generic) open types](/dotnet/csharp/language-reference/language-specification/types#843-open-and-closed-types), eliminating the need to register every [(generic) constructed type](/dotnet/csharp/language-reference/language-specification/types#84-constructed-types).
 
 In dependency injection terminology, a service:
 
@@ -92,13 +91,7 @@ The framework provides a robust [logging](xref:fundamentals/logging/index) syste
 
 [!code-csharp[](dependency-injection/samples/6.x/DependencyInjectionSample/Pages/About.cshtml.cs?name=snippet)]
 
-Using the preceding code, there is no need to update *Program.cs*, because [logging](xref:fundamentals/logging/index) is provided by the framework.
-
-## Services injected into Program.cs
-
-Any service registered with the DI container can be resolved from `app.Services` in *Program.cs*:
-
-[!code-csharp[](dependency-injection/samples/6.x/DependencyInjectionSample/Program.cs?name=snippet1)]
+Using the preceding code, there is no need to update `Program.cs`, because [logging](xref:fundamentals/logging/index) is provided by the framework.
 
 ## Register groups of services with extension methods
 
@@ -117,7 +110,7 @@ See [Service lifetimes](/dotnet/core/extensions/dependency-injection#service-lif
 To use scoped services in middleware, use one of the following approaches:
 
 * Inject the service into the middleware's `Invoke` or `InvokeAsync` method. Using [constructor injection](xref:mvc/controllers/dependency-injection#constructor-injection) throws a runtime exception because it forces the scoped service to behave like a singleton. The sample in the [Lifetime and registration options](#lifetime-and-registration-options) section demonstrates the `InvokeAsync` approach.
-* Use [Factory-based middleware](xref:fundamentals/middleware/extensibility). Middleware registered using this approach is activated per client request (connection), which allows scoped services to be injected into the middleware's `InvokeAsync` method.
+* Use [Factory-based middleware](xref:fundamentals/middleware/extensibility). Middleware registered using this approach is activated per client request (connection), which allows scoped services to be injected into the middleware's constructor.
 
 For more information, see <xref:fundamentals/middleware/write#per-request-middleware-dependencies>.
 
@@ -169,7 +162,7 @@ The following `Operation` class implements all of the preceding interfaces. The 
 
 The following code creates multiple registrations of the `Operation` class according to the named lifetimes:
 
-[!code-csharp[](dependency-injection/samples/6.x/DependencyInjectionSample/Program.cs?name=snippet3)]
+[!code-csharp[](dependency-injection/samples/6.x/DependencyInjectionSample/Program.cs?name=snippet3&highlight=5-7,20)]
 
 The sample app demonstrates object lifetimes both within and between requests. The `IndexModel` and the middleware request each kind of `IOperation` type and log the `OperationId` for each:
 
@@ -179,7 +172,7 @@ Similar to the `IndexModel`, the middleware resolves the same services:
 
 [!code-csharp[](dependency-injection/samples/6.x/DependencyInjectionSample/Middleware/MyMiddleware.cs?name=snippet)]
 
-Scoped services must be resolved in the `InvokeAsync` method:
+Scoped and transient services must be resolved in the `InvokeAsync` method:
 
 [!code-csharp[](dependency-injection/samples/6.x/DependencyInjectionSample/Middleware/MyMiddleware.cs?name=snippet2&highlight=2)]
 
@@ -189,7 +182,7 @@ The logger output shows:
 * *Scoped* objects are the same for a given request but differ across each new request.
 * *Singleton* objects are the same for every request.
 
-To reduce the logging output, set "Logging:LogLevel:Microsoft:Error" in the *appsettings.Development.json* file:
+To reduce the logging output, set "Logging:LogLevel:Microsoft:Error" in the `appsettings.Development.json` file:
 
 [!code-json[](dependency-injection/samples/3.x/DependencyInjectionSample/appsettings.Development.json?highlight=7)]
 
@@ -323,13 +316,13 @@ DI is an *alternative* to static/global object access patterns. You may not be a
 
 ## Recommended patterns for multi-tenancy in DI
 
-[Orchard Core](https://github.com/OrchardCMS/OrchardCore) is an application framework for building modular, multi-tenant applications on ASP.NET Core. For more information, see the [Orchard Core Documentation](https://docs.orchardcore.net/en/dev/).
+[Orchard Core](https://github.com/OrchardCMS/OrchardCore) is an application framework for building modular, multi-tenant applications on ASP.NET Core. For more information, see the [Orchard Core Documentation](https://docs.orchardcore.net).
 
 See the [Orchard Core samples](https://github.com/OrchardCMS/OrchardCore.Samples) for examples of how to build modular and multi-tenant apps using just the Orchard Core Framework without any of its CMS-specific features.
 
 ## Framework-provided services
 
-*Program.cs* registers services that the app uses, including platform features, such as Entity Framework Core and ASP.NET Core MVC. Initially, the `IServiceCollection` provided to *Program.cs* has services defined by the framework depending on [how the host was configured](xref:fundamentals/index#host). For apps based on the ASP.NET Core templates, the framework registers more than 250 services.
+`Program.cs` registers services that the app uses, including platform features, such as Entity Framework Core and ASP.NET Core MVC. Initially, the `IServiceCollection` provided to `Program.cs` has services defined by the framework depending on [how the host was configured](xref:fundamentals/index#host). For apps based on the ASP.NET Core templates, the framework registers more than 250 services.
 
 The following table lists a small sample of these framework-registered services:
 
@@ -365,9 +358,9 @@ The following table lists a small sample of these framework-registered services:
 * [Inversion of Control Containers and the Dependency Injection Pattern (Martin Fowler)](https://www.martinfowler.com/articles/injection.html)
 * [How to register a service with multiple interfaces in ASP.NET Core DI](https://andrewlock.net/how-to-register-a-service-with-multiple-interfaces-for-in-asp-net-core-di/)
 
-::: moniker-end
+:::moniker-end
 
-::: moniker range="< aspnetcore-6.0"
+:::moniker range="< aspnetcore-6.0"
 
 By [Kirk Larkin](https://twitter.com/serpent5), [Steve Smith](https://ardalis.com/), [Scott Addie](https://scottaddie.com), and [Brandon Dahler](https://github.com/brandondahler)
 
@@ -456,7 +449,7 @@ The updated `ConfigureServices` method registers the new `IMyDependency` impleme
 
 It's not unusual to use dependency injection in a chained fashion. Each requested dependency in turn requests its own dependencies. The container resolves the dependencies in the graph and returns the fully resolved service. The collective set of dependencies that must be resolved is typically referred to as a *dependency tree*, *dependency graph*, or *object graph*.
 
-The container resolves `ILogger<TCategoryName>` by taking advantage of [(generic) open types](/dotnet/csharp/language-reference/language-specification/types#open-and-closed-types), eliminating the need to register every [(generic) constructed type](/dotnet/csharp/language-reference/language-specification/types#constructed-types).
+The container resolves `ILogger<TCategoryName>` by taking advantage of [(generic) open types](/dotnet/csharp/language-reference/language-specification/types#843-open-and-closed-types), eliminating the need to register every [(generic) constructed type](/dotnet/csharp/language-reference/language-specification/types#84-constructed-types).
 
 In dependency injection terminology, a service:
 
@@ -579,7 +572,7 @@ The logger output shows:
 * *Scoped* objects are the same for a given request but differ across each new request.
 * *Singleton* objects are the same for every request.
 
-To reduce the logging output, set "Logging:LogLevel:Microsoft:Error" in the *appsettings.Development.json* file:
+To reduce the logging output, set "Logging:LogLevel:Microsoft:Error" in the `appsettings.Development.json` file:
 
 [!code-json[](dependency-injection/samples/3.x/DependencyInjectionSample/appsettings.Development.json?highlight=7)]
 
@@ -716,7 +709,7 @@ DI is an *alternative* to static/global object access patterns. You may not be a
 
 ## Recommended patterns for multi-tenancy in DI
 
-[Orchard Core](https://github.com/OrchardCMS/OrchardCore) is an application framework for building modular, multi-tenant applications on ASP.NET Core. For more information, see the [Orchard Core Documentation](https://docs.orchardcore.net/en/dev/).
+[Orchard Core](https://github.com/OrchardCMS/OrchardCore) is an application framework for building modular, multi-tenant applications on ASP.NET Core. For more information, see the [Orchard Core Documentation](https://docs.orchardcore.net).
 
 See the [Orchard Core samples](https://github.com/OrchardCMS/OrchardCore.Samples) for examples of how to build modular and multi-tenant apps using just the Orchard Core Framework without any of its CMS-specific features.
 
@@ -758,4 +751,4 @@ The following table lists a small sample of these framework-registered services:
 * [Inversion of Control Containers and the Dependency Injection Pattern (Martin Fowler)](https://www.martinfowler.com/articles/injection.html)
 * [How to register a service with multiple interfaces in ASP.NET Core DI](https://andrewlock.net/how-to-register-a-service-with-multiple-interfaces-for-in-asp-net-core-di/)
 
-::: moniker-end
+:::moniker-end

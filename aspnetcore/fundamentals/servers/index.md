@@ -6,7 +6,6 @@ monikerRange: '>= aspnetcore-2.1'
 ms.author: riande
 ms.custom: mvc
 ms.date: 11/07/2019
-no-loc: [Home, Privacy, Kestrel, appsettings.json, "ASP.NET Core Identity", cookie, Cookie, Blazor, "Blazor Server", "Blazor WebAssembly", "Identity", "Let's Encrypt", Razor, SignalR]
 uid: fundamentals/servers/index
 ---
 # Web server implementations in ASP.NET Core
@@ -15,7 +14,7 @@ By [Tom Dykstra](https://github.com/tdykstra), [Steve Smith](https://ardalis.com
 
 An ASP.NET Core app runs with an in-process HTTP server implementation. The server implementation listens for HTTP requests and surfaces them to the app as a set of [request features](xref:fundamentals/request-features) composed into an <xref:Microsoft.AspNetCore.Http.HttpContext>.
 
-::: moniker range=">= aspnetcore-2.2"
+:::moniker range=">= aspnetcore-2.2"
 
 # [Windows](#tab/windows)
 
@@ -73,7 +72,7 @@ ASP.NET Core ships with [Kestrel server](xref:fundamentals/servers/kestrel), whi
 
 ---
 
-::: moniker-end
+:::moniker-end
 
 ## Kestrel
 
@@ -93,7 +92,7 @@ Either hosting configuration&mdash;with or without a reverse proxy server&mdash;
 
 For Kestrel configuration guidance and information on when to use Kestrel in a reverse proxy configuration, see <xref:fundamentals/servers/kestrel>.
 
-::: moniker range="< aspnetcore-2.2"
+:::moniker range="< aspnetcore-2.2"
 
 # [Windows](#tab/windows)
 
@@ -131,7 +130,7 @@ ASP.NET Core ships with [Kestrel server](xref:fundamentals/servers/kestrel), whi
 
 ---
 
-::: moniker-end
+:::moniker-end
 
 ### Nginx with Kestrel
 
@@ -173,13 +172,36 @@ The server is launched when the Integrated Development Environment (IDE) or edit
 
 When launching the app from a command prompt in the project's folder, [dotnet run](/dotnet/core/tools/dotnet-run) launches the app and server (Kestrel and HTTP.sys only). The configuration is specified by the `-c|--configuration` option, which is set to either `Debug` (default) or `Release`.
 
-A *launchSettings.json* file provides configuration when launching an app with `dotnet run` or with a debugger built into tooling, such as Visual Studio. If launch profiles are present in a *launchSettings.json* file, use the `--launch-profile {PROFILE NAME}` option with the `dotnet run` command or select the profile in Visual Studio. For more information, see [dotnet run](/dotnet/core/tools/dotnet-run) and [.NET Core distribution packaging](/dotnet/core/build/distribution-packaging).
+A `launchSettings.json` file provides configuration when launching an app with `dotnet run` or with a debugger built into tooling, such as Visual Studio. If launch profiles are present in a `launchSettings.json` file, use the `--launch-profile {PROFILE NAME}` option with the `dotnet run` command or select the profile in Visual Studio. For more information, see [dotnet run](/dotnet/core/tools/dotnet-run) and [.NET Core distribution packaging](/dotnet/core/build/distribution-packaging).
 
 ## HTTP/2 support
 
 [HTTP/2](https://httpwg.org/specs/rfc7540.html) is supported with ASP.NET Core in the following deployment scenarios:
 
-::: moniker range=">= aspnetcore-5.0"
+:::moniker range=">= aspnetcore-8.0"
+
+* [Kestrel](xref:fundamentals/servers/kestrel/http2)
+  * Operating system
+    * Windows Server 2016/Windows 10 or later&dagger;
+    * Linux with OpenSSL 1.0.2 or later (for example, Ubuntu 16.04 or later)
+    * macOS 10.15 or later
+  * Target framework: .NET Core 2.2 or later
+* [HTTP.sys](xref:fundamentals/servers/httpsys#http2-support)
+  * Windows Server 2016/Windows 10 or later
+  * Target framework: Not applicable to HTTP.sys deployments.
+* [IIS (in-process)](xref:host-and-deploy/iis/index#http2-support)
+  * Windows Server 2016/Windows 10 or later; IIS 10 or later
+  * Target framework: .NET Core 2.2 or later
+* [IIS (out-of-process)](xref:host-and-deploy/iis/index#http2-support)
+  * Windows Server 2016/Windows 10 or later; IIS 10 or later
+  * Public-facing edge server connections use HTTP/2, but the reverse proxy connection to Kestrel uses HTTP/1.1.
+  * Target framework: Not applicable to IIS out-of-process deployments.
+
+&dagger;Kestrel has limited support for HTTP/2 on Windows Server 2012 R2 and Windows 8.1. Support is limited because the list of supported TLS cipher suites available on these operating systems is limited. A certificate generated using an Elliptic Curve Digital Signature Algorithm (ECDSA) may be required to secure TLS connections.
+
+:::moniker-end
+
+:::moniker range=">= aspnetcore-5.0 < aspnetcore-8.0"
 
 * [Kestrel](xref:fundamentals/servers/kestrel/http2)
   * Operating system
@@ -200,9 +222,9 @@ A *launchSettings.json* file provides configuration when launching an app with `
 
 &dagger;Kestrel has limited support for HTTP/2 on Windows Server 2012 R2 and Windows 8.1. Support is limited because the list of supported TLS cipher suites available on these operating systems is limited. A certificate generated using an Elliptic Curve Digital Signature Algorithm (ECDSA) may be required to secure TLS connections.
 
-::: moniker-end
+:::moniker-end
 
-::: moniker range=">= aspnetcore-2.2 < aspnetcore-5.0"
+:::moniker range=">= aspnetcore-2.2 < aspnetcore-5.0"
 
 * [Kestrel](xref:fundamentals/servers/kestrel#http2-support)
   * Operating system
@@ -223,9 +245,9 @@ A *launchSettings.json* file provides configuration when launching an app with `
 
 &dagger;Kestrel has limited support for HTTP/2 on Windows Server 2012 R2 and Windows 8.1. Support is limited because the list of supported TLS cipher suites available on these operating systems is limited. A certificate generated using an Elliptic Curve Digital Signature Algorithm (ECDSA) may be required to secure TLS connections.
 
-::: moniker-end
+:::moniker-end
 
-::: moniker range="< aspnetcore-2.2"
+:::moniker range="< aspnetcore-2.2"
 
 * [HTTP.sys](xref:fundamentals/servers/httpsys#http2-support)
   * Windows Server 2016/Windows 10 or later
@@ -235,7 +257,7 @@ A *launchSettings.json* file provides configuration when launching an app with `
   * Public-facing edge server connections use HTTP/2, but the reverse proxy connection to Kestrel uses HTTP/1.1.
   * Target framework: Not applicable to IIS out-of-process deployments.
 
-::: moniker-end
+:::moniker-end
 
 An HTTP/2 connection must use [Application-Layer Protocol Negotiation (ALPN)](https://tools.ietf.org/html/rfc7301#section-3) and TLS 1.2 or later. For more information, see the topics that pertain to your server deployment scenarios.
 

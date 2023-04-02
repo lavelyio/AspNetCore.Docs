@@ -1,19 +1,20 @@
 ---
 title: ASP.NET Core Blazor CSS isolation
 author: guardrex
-description: Learn how CSS isolation allows you to scope CSS to your components, which can simplify your CSS and avoid collisions with other components or libraries.
+description: Learn how CSS isolation scopes CSS to Razor components, which can simplify CSS and avoid collisions with other components or libraries.
 monikerRange: '>= aspnetcore-5.0'
 ms.author: riande
 ms.custom: mvc
-ms.date: 11/09/2021
-no-loc: [Home, Privacy, Kestrel, appsettings.json, "ASP.NET Core Identity", cookie, Cookie, Blazor, "Blazor Server", "Blazor WebAssembly", "Identity", "Let's Encrypt", Razor, SignalR]
+ms.date: 11/08/2022
 uid: blazor/components/css-isolation
 ---
 # ASP.NET Core Blazor CSS isolation
 
 By [Dave Brock](https://twitter.com/daveabrock)
 
-::: moniker range=">= aspnetcore-6.0"
+This article explains how CSS isolation scopes CSS to Razor components, which can simplify CSS and avoid collisions with other components or libraries.
+
+:::moniker range=">= aspnetcore-6.0"
 
 Isolate CSS styles to individual pages, views, and components to reduce or avoid:
 
@@ -50,13 +51,13 @@ h1 {
 
 ## CSS isolation bundling
 
-CSS isolation occurs at build time. Blazor rewrites CSS selectors to match markup rendered by the component. The rewritten CSS styles are bundled and produced as a static asset. The stylesheet is referenced inside the `<head>` tag of `wwwroot/index.html` (Blazor WebAssembly) or `Pages/_Layout.cshtml` (Blazor Server). The following `<link>` element is added by default to an app created from the Blazor project templates, where the placeholder `{ASSEMBLY NAME}` is the project's assembly name:
+CSS isolation occurs at build time. Blazor rewrites CSS selectors to match markup rendered by the component. The rewritten CSS styles are bundled and produced as a static asset. The stylesheet is referenced inside the `<head>` tag ([location of `<head>` content](xref:blazor/project-structure#location-of-head-content)). The following `<link>` element is added by default to an app created from the Blazor project templates, where the placeholder `{ASSEMBLY NAME}` is the project's assembly name:
 
 ```html
 <link href="{ASSEMBLY NAME}.styles.css" rel="stylesheet">
 ```
 
-The following example is from a hosted Blazor WebAssembly **`Client`** app. The app's assembly name is `BlazorSample.Client`, and the `<link>` is added by the Blazor WebAssembly project template when the project is created with the Hosted option (`-ho|--hosted` option using the .NET CLI or **ASP.NET Core hosted** checkbox using Visual Studio):
+The following example is from a hosted Blazor WebAssembly **:::no-loc text="Client":::** app. The app's assembly name is `BlazorSample.Client`, and the `<link>` is added by the Blazor WebAssembly project template when the project is created with the Hosted option (`-ho|--hosted` option using the .NET CLI or **ASP.NET Core Hosted** checkbox using Visual Studio):
 
 ```html
 <link href="BlazorSample.Client.styles.css" rel="stylesheet">
@@ -85,7 +86,7 @@ At build time, a project bundle is created with the convention `obj/{CONFIGURATI
 
 ## Child component support
 
-By default, CSS isolation only applies to the component you associate with the format `{COMPONENT NAME}.razor.css`, where the placeholder `{COMPONENT NAME}` is usually the component name. To apply changes to a child component, use the `::deep` combinator to any descendant elements in the parent component's `.razor.css` file. The `::deep` combinator selects elements that are *descendants* of an element's generated scope identifier. 
+By default, CSS isolation only applies to the component you associate with the format `{COMPONENT NAME}.razor.css`, where the placeholder `{COMPONENT NAME}` is usually the component name. To apply changes to a child component, use the `::deep` [pseudo-element](https://developer.mozilla.org/docs/Web/CSS/Pseudo-elements) to any descendant elements in the parent component's `.razor.css` file. The `::deep` pseudo-element selects elements that are *descendants* of an element's generated scope identifier. 
 
 The following example shows a parent component called `Parent` with a child component called `Child`.
 
@@ -107,7 +108,7 @@ The following example shows a parent component called `Parent` with a child comp
 <h1>Child Component</h1>
 ```
 
-Update the `h1` declaration in `Parent.razor.css` with the `::deep` combinator to signify the `h1` style declaration must apply to the parent component and its children.
+Update the `h1` declaration in `Parent.razor.css` with the `::deep` pseudo-element to signify the `h1` style declaration must apply to the parent component and its children.
 
 `Pages/Parent.razor.css`:
 
@@ -119,7 +120,7 @@ Update the `h1` declaration in `Parent.razor.css` with the `::deep` combinator t
 
 The `h1` style now applies to the `Parent` and `Child` components without the need to create a separate scoped CSS file for the child component.
 
-The `::deep` combinator only works with descendant elements. The following markup applies the `h1` styles to components as expected. The parent component's scope identifier is applied to the `div` element, so the browser knows to inherit styles from the parent component.
+The `::deep` pseudo-element only works with descendant elements. The following markup applies the `h1` styles to components as expected. The parent component's scope identifier is applied to the `div` element, so the browser knows to inherit styles from the parent component.
 
 `Pages/Parent.razor`:
 
@@ -141,11 +142,18 @@ However, excluding the `div` element removes the descendant relationship. In the
 <Child />
 ```
 
+The `::deep` pseudo-element affects where the scope attribute is applied to the rule. When you define a CSS rule in a scoped CSS file, the scope is applied to the right most element by default. For example: `div > a` is transformed to `div > a[b-{STRING}]`, where the `{STRING}` placeholder is a ten-character string generated by the framework (for example, `b-3xxtam6d07`). If you instead want the rule to apply to a different selector, the `::deep` pseudo-element allows you do so. For example, `div ::deep > a` is transformed to `div[b-{STRING}] > a` (for example, `div[b-3xxtam6d07] > a`).
+
+The ability to attach the `::deep` pseudo-element to any HTML element allows you to create scoped CSS styles that affect elements rendered by other components when you can determine the structure of the rendered HTML tags. For a component that renders an hyperlink tag (`<a>`) inside another component, ensure the component is wrapped in a `div` (or any other element) and use the rule `::deep > a` to create a style that's only applied to that component when the parent component renders.
+
+> [!IMPORTANT]
+> Scoped CSS only applies to ***HTML elements*** and not to Razor components or Tag Helpers, including elements with a Tag Helper applied, such as `<input asp-for="..." />`.
+
 ## CSS preprocessor support
 
 CSS preprocessors are useful for improving CSS development by utilizing features such as variables, nesting, modules, mixins, and inheritance. While CSS isolation doesn't natively support CSS preprocessors such as Sass or Less, integrating CSS preprocessors is seamless as long as preprocessor compilation occurs before Blazor rewrites the CSS selectors during the build process. Using Visual Studio for example, configure existing preprocessor compilation as a **Before Build** task in the Visual Studio Task Runner Explorer.
 
-Many third-party NuGet packages, such as [`Delegate.SassBuilder`](https://www.nuget.org/packages/Delegate.SassBuilder), can compile SASS/SCSS files at the beginning of the build process before CSS isolation occurs, and no additional configuration is required.
+Many third-party NuGet packages, such as [`AspNetCore.SassCompiler`](https://www.nuget.org/packages/AspNetCore.SassCompiler#readme-body-tab), can compile SASS/SCSS files at the beginning of the build process before CSS isolation occurs.
 
 ## CSS isolation configuration
 
@@ -153,7 +161,7 @@ CSS isolation is designed to work out-of-the-box but provides configuration for 
 
 ### Customize scope identifier format
 
-By default, scope identifiers use the format `b-{STRING}`, where the `{STRING}` placeholder is a ten-character string generated by the framework.. To customize the scope identifier format, update the project file to a desired pattern:
+By default, scope identifiers use the format `b-{STRING}`, where the `{STRING}` placeholder is a ten-character string generated by the framework. To customize the scope identifier format, update the project file to a desired pattern:
 
 ```xml
 <ItemGroup>
@@ -230,9 +238,9 @@ For more information on RCLs, see the following articles:
 * [Razor Pages CSS isolation](xref:razor-pages/index#css-isolation)
 * [MVC CSS isolation](xref:mvc/views/overview#css-isolation)
 
-::: moniker-end
+:::moniker-end
 
-::: moniker range=">= aspnetcore-5.0 < aspnetcore-6.0"
+:::moniker range=">= aspnetcore-5.0 < aspnetcore-6.0"
 
 CSS isolation simplifies an app's CSS footprint by preventing dependencies on global styles and helps to avoid styling conflicts among components and libraries.
 
@@ -272,7 +280,7 @@ CSS isolation occurs at build time. Blazor rewrites CSS selectors to match marku
 <link href="{ASSEMBLY NAME}.styles.css" rel="stylesheet">
 ```
 
-The following example is from a hosted Blazor WebAssembly **`Client`** app. The app's assembly name is `BlazorSample.Client`, and the `<link>` is added by the Blazor WebAssembly project template when the project is created with the Hosted option (`-ho|--hosted` option using the .NET CLI or **ASP.NET Core hosted** checkbox using Visual Studio):
+The following example is from a hosted Blazor WebAssembly **:::no-loc text="Client":::** app. The app's assembly name is `BlazorSample.Client`, and the `<link>` is added by the Blazor WebAssembly project template when the project is created with the Hosted option (`-ho|--hosted` option using the .NET CLI or **ASP.NET Core Hosted** checkbox using Visual Studio):
 
 ```html
 <link href="BlazorSample.Client.styles.css" rel="stylesheet">
@@ -301,7 +309,7 @@ At build time, a project bundle is created with the convention `obj/{CONFIGURATI
 
 ## Child component support
 
-By default, CSS isolation only applies to the component you associate with the format `{COMPONENT NAME}.razor.css`, where the placeholder `{COMPONENT NAME}` is usually the component name. To apply changes to a child component, use the `::deep` combinator to any descendant elements in the parent component's `.razor.css` file. The `::deep` combinator selects elements that are *descendants* of an element's generated scope identifier. 
+By default, CSS isolation only applies to the component you associate with the format `{COMPONENT NAME}.razor.css`, where the placeholder `{COMPONENT NAME}` is usually the component name. To apply changes to a child component, use the `::deep` [pseudo-element](https://developer.mozilla.org/docs/Web/CSS/Pseudo-elements) to any descendant elements in the parent component's `.razor.css` file. The `::deep` pseudo-element selects elements that are *descendants* of an element's generated scope identifier. 
 
 The following example shows a parent component called `Parent` with a child component called `Child`.
 
@@ -323,7 +331,7 @@ The following example shows a parent component called `Parent` with a child comp
 <h1>Child Component</h1>
 ```
 
-Update the `h1` declaration in `Parent.razor.css` with the `::deep` combinator to signify the `h1` style declaration must apply to the parent component and its children.
+Update the `h1` declaration in `Parent.razor.css` with the `::deep` pseudo-element to signify the `h1` style declaration must apply to the parent component and its children.
 
 `Pages/Parent.razor.css`:
 
@@ -335,7 +343,7 @@ Update the `h1` declaration in `Parent.razor.css` with the `::deep` combinator t
 
 The `h1` style now applies to the `Parent` and `Child` components without the need to create a separate scoped CSS file for the child component.
 
-The `::deep` combinator only works with descendant elements. The following markup applies the `h1` styles to components as expected. The parent component's scope identifier is applied to the `div` element, so the browser knows to inherit styles from the parent component.
+The `::deep` pseudo-element only works with descendant elements. The following markup applies the `h1` styles to components as expected. The parent component's scope identifier is applied to the `div` element, so the browser knows to inherit styles from the parent component.
 
 `Pages/Parent.razor`:
 
@@ -357,11 +365,18 @@ However, excluding the `div` element removes the descendant relationship. In the
 <Child />
 ```
 
+The `::deep` pseudo-element affects where the scope attribute is applied to the rule. When you define a CSS rule in a scoped CSS file, the scope is applied to the right most element by default. For example: `div > a` is transformed to `div > a[b-{STRING}]`, where the `{STRING}` placeholder is a ten-character string generated by the framework (for example, `b-3xxtam6d07`). If you instead want the rule to apply to a different selector, the `::deep` pseudo-element allows you do so. For example, `div ::deep > a` is transformed to `div[b-{STRING}] > a` (for example, `div[b-3xxtam6d07] > a`).
+
+The ability to attach the `::deep` pseudo-element to any HTML element allows you to create scoped CSS styles that affect elements rendered by other components when you can determine the structure of the rendered HTML tags. For a component that renders an hyperlink tag (`<a>`) inside another component, ensure the component is wrapped in a `div` (or any other element) and use the rule `::deep > a` to create a style that's only applied to that component when the parent component renders.
+
+> [!IMPORTANT]
+> Scoped CSS only applies to ***HTML elements*** and not to Razor components or Tag Helpers, including elements with a Tag Helper applied, such as `<input asp-for="..." />`.
+
 ## CSS preprocessor support
 
 CSS preprocessors are useful for improving CSS development by utilizing features such as variables, nesting, modules, mixins, and inheritance. While CSS isolation doesn't natively support CSS preprocessors such as Sass or Less, integrating CSS preprocessors is seamless as long as preprocessor compilation occurs before Blazor rewrites the CSS selectors during the build process. Using Visual Studio for example, configure existing preprocessor compilation as a **Before Build** task in the Visual Studio Task Runner Explorer.
 
-Many third-party NuGet packages, such as [Delegate.SassBuilder](https://www.nuget.org/packages/Delegate.SassBuilder), can compile SASS/SCSS files at the beginning of the build process before CSS isolation occurs, and no additional configuration is required.
+Many third-party NuGet packages, such as [`AspNetCore.SassCompiler`](https://www.nuget.org/packages/AspNetCore.SassCompiler#readme-body-tab), can compile SASS/SCSS files at the beginning of the build process before CSS isolation occurs.
 
 ## CSS isolation configuration
 
@@ -441,4 +456,4 @@ For more information on RCLs, see the following articles:
 * <xref:blazor/components/class-libraries>
 * <xref:razor-pages/ui-class>
 
-::: moniker-end
+:::moniker-end

@@ -5,14 +5,13 @@ description: Learn how to add claims checks for authorization in an ASP.NET Core
 ms.author: riande
 monikerRange: '>= aspnetcore-3.1'
 ms.date: 11/26/2021
-no-loc: [Home, Privacy, Kestrel, appsettings.json, "ASP.NET Core Identity", cookie, Cookie, Blazor, "Blazor Server", "Blazor WebAssembly", "Identity", "Let's Encrypt", Razor, SignalR]
 uid: security/authorization/claims
 ---
 # Claims-based authorization in ASP.NET Core
 
 <a name="security-authorization-claims-based"></a>
 
-::: moniker range=">= aspnetcore-6.0"
+:::moniker range=">= aspnetcore-6.0"
 
 When an identity is created it may be assigned one or more claims issued by a trusted party. A claim is a name value pair that represents what the subject is, not what the subject can do. For example, you may have a driver's license, issued by a local driving license authority. Your driver's license has your date of birth on it. In this case the claim name would be `DateOfBirth`, the claim value would be your date of birth, for example `8th June 1970` and the issuer would be the driving license authority. Claims based authorization, at its simplest, checks the value of a claim and allows access to a resource based upon that value. For example if you want access to a night club the authorization process might be:
 
@@ -32,7 +31,7 @@ Claims in code specify claims which the current user must possess, and optionall
 
 The simplest type of claim policy looks for the presence of a claim and doesn't check the value.
 
-Build and register the policy and call <xref:Microsoft.AspNetCore.Builder.AuthorizationAppBuilderExtensions.UseAuthorization%2A>. Registering the policy takes place as part of the Authorization service configuration, typically in the *Program.cs* file:
+Build and register the policy and call <xref:Microsoft.AspNetCore.Builder.AuthorizationAppBuilderExtensions.UseAuthorization%2A>. Registering the policy takes place as part of the Authorization service configuration, typically in the `Program.cs` file:
 
 [!code-csharp[](~/security/authorization/claims/samples/6.x/WebAll/Program.cs?name=snippet&highlight=6-9,23)]
 
@@ -57,7 +56,7 @@ If you have a controller that's protected by the `[Authorize]` attribute, but wa
 
 [!code-csharp[](~/security/authorization/claims/samples/6.x/WebAll/Controllers/VacationController.cs?name=snippet&highlight=14)]
 
-Because policies can ***not*** be applied at the Razor Page handler level, we recommend using a controller when polices must be applied at the page handler level. The rest of the app that doesn't require policies at the Razor Page handler level can use Razor Pages.
+Because policies can ***not*** be applied at the Razor Page handler level, we recommend using a controller when policies must be applied at the page handler level. The rest of the app that doesn't require policies at the Razor Page handler level can use Razor Pages.
 
 Most claims come with a value. You can specify a list of allowed values when creating the policy. The following example would only succeed for employees whose employee number was 1, 2, 3, 4 or 5.
 
@@ -65,7 +64,7 @@ Most claims come with a value. You can specify a list of allowed values when cre
 
 ### Add a generic claim check
 
-If the claim value isn't a single value or a transformation is required, use [RequireAssertion](/dotnet/api/microsoft.aspnetcore.authorization.authorizationpolicybuilder.requireassertion). For more information, see [Use a func to fulfill a policy](xref:security/authorization/policies#use-a-func-to-fulfill-a-policy).
+If the claim value isn't a single value or a transformation is required, use <xref:Microsoft.AspNetCore.Authorization.AuthorizationPolicyBuilder.RequireAssertion%2A>. For more information, see [Use a func to fulfill a policy](xref:security/authorization/policies#use-a-func-to-fulfill-a-policy).
 
 ## Multiple Policy Evaluation
 
@@ -81,9 +80,9 @@ In the following sample, both page handler methods must fulfill *both* the `Empl
 
 [!code-csharp[](~/security/authorization/claims/samples/6.x/WebAll/Pages/X/Salary.cshtml.cs?name=snippet&highlight=1,2)]
 
-::: moniker-end
+:::moniker-end
 
-::: moniker range="= aspnetcore-5.0"
+:::moniker range="= aspnetcore-5.0"
 
 When an identity is created it may be assigned one or more claims issued by a trusted party. A claim is a name value pair that represents what the subject is, not what the subject can do. For example, you may have a driver's license, issued by a local driving license authority. Your driver's license has your date of birth on it. In this case the claim name would be `DateOfBirth`, the claim value would be your date of birth, for example `8th June 1970` and the issuer would be the driving license authority. Claims based authorization, at its simplest, checks the value of a claim and allows access to a resource based upon that value. For example if you want access to a night club the authorization process might be:
 
@@ -97,7 +96,7 @@ Claim based authorization checks are declarative - the developer embeds them wit
 
 The simplest type of claim policy looks for the presence of a claim and doesn't check the value.
 
-Build and register the policy. This takes place as part of the Authorization service configuration, which normally takes part in `ConfigureServices()` in your *Startup.cs* file.
+Build and register the policy. This takes place as part of the Authorization service configuration, which normally takes part in `ConfigureServices()` in your `Startup.cs` file.
 
 ```csharp
 public void ConfigureServices(IServiceCollection services)
@@ -202,7 +201,7 @@ public void ConfigureServices(IServiceCollection services)
 
 ### Add a generic claim check
 
-If the claim value isn't a single value or a transformation is required, use [RequireAssertion](/dotnet/api/microsoft.aspnetcore.authorization.authorizationpolicybuilder.requireassertion). For more information, see [Use a func to fulfill a policy](xref:security/authorization/policies#use-a-func-to-fulfill-a-policy).
+If the claim value isn't a single value or a transformation is required, use <xref:Microsoft.AspNetCore.Authorization.AuthorizationPolicyBuilder.RequireAssertion%2A>. For more information, see [Use a func to fulfill a policy](xref:security/authorization/policies#use-a-func-to-fulfill-a-policy).
 
 ## Multiple Policy Evaluation
 
@@ -227,9 +226,9 @@ In the above example any identity which fulfills the `EmployeeOnly` policy can a
 
 If you want more complicated policies, such as taking a date of birth claim, calculating an age from it then checking the age is 21 or older then you need to write [custom policy handlers](xref:security/authorization/policies).
 
-::: moniker-end
+:::moniker-end
 
-::: moniker range="= aspnetcore-3.1"
+:::moniker range="= aspnetcore-3.1"
 
 When an identity is created it may be assigned one or more claims issued by a trusted party. A claim is a name value pair that represents what the subject is, not what the subject can do. For example, you may have a driver's license, issued by a local driving license authority. Your driver's license has your date of birth on it. In this case the claim name would be `DateOfBirth`, the claim value would be your date of birth, for example `8th June 1970` and the issuer would be the driving license authority. Claims based authorization, at its simplest, checks the value of a claim and allows access to a resource based upon that value. For example if you want access to a night club the authorization process might be:
 
@@ -243,7 +242,7 @@ Claim based authorization checks are declarative - the developer embeds them wit
 
 The simplest type of claim policy looks for the presence of a claim and doesn't check the value.
 
-Build and register the policy. This takes place as part of the Authorization service configuration, which normally takes part in `ConfigureServices()` in your *Startup.cs* file.
+Build and register the policy. This takes place as part of the Authorization service configuration, which normally takes part in `ConfigureServices()` in your `Startup.cs` file.
 
 ```csharp
 public void ConfigureServices(IServiceCollection services)
@@ -317,7 +316,7 @@ public void ConfigureServices(IServiceCollection services)
 
 ### Add a generic claim check
 
-If the claim value isn't a single value or a transformation is required, use [RequireAssertion](/dotnet/api/microsoft.aspnetcore.authorization.authorizationpolicybuilder.requireassertion). For more information, see [Use a func to fulfill a policy](xref:security/authorization/policies#use-a-func-to-fulfill-a-policy).
+If the claim value isn't a single value or a transformation is required, use <xref:Microsoft.AspNetCore.Authorization.AuthorizationPolicyBuilder.RequireAssertion%2A>. For more information, see [Use a func to fulfill a policy](xref:security/authorization/policies#use-a-func-to-fulfill-a-policy).
 
 ## Multiple Policy Evaluation
 
@@ -342,4 +341,4 @@ In the above example any identity which fulfills the `EmployeeOnly` policy can a
 
 If you want more complicated policies, such as taking a date of birth claim, calculating an age from it then checking the age is 21 or older then you need to write [custom policy handlers](xref:security/authorization/policies).
 
-::: moniker-end
+:::moniker-end

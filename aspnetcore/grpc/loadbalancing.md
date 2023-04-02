@@ -4,8 +4,7 @@ author: jamesnk
 description: Learn how to make scalable, high-performance gRPC apps with client-side load balancing in .NET.
 monikerRange: '>= aspnetcore-3.0'
 ms.author: jamesnk
-ms.date: 08/07/2021
-no-loc: [Home, Privacy, Kestrel, appsettings.json, "ASP.NET Core Identity", cookie, Cookie, Blazor, "Blazor Server", "Blazor WebAssembly", "Identity", "Let's Encrypt", Razor, SignalR, "service config"]
+ms.date: 06/23/2022
 uid: grpc/loadbalancing
 ---
 # gRPC client-side load balancing
@@ -17,12 +16,7 @@ Client-side load balancing is a feature that allows gRPC clients to distribute l
 Client-side load balancing requires:
 
 * .NET 5 or later.
-* [Grpc.Net.Client](https://www.nuget.org/packages/Grpc.Net.Client) version 2.39.0-pre1 or later.
-
-> [!IMPORTANT]
-> This feature is in preview. Integration with other gRPC features is not complete and testing is required.
-> 
-> Client-side load balancing is currently only available in prerelease versions of `Grpc.Net.Client` on NuGet.org.
+* [`Grpc.Net.Client`](https://www.nuget.org/packages/Grpc.Net.Client) version 2.45.0 or later.
 
 ## Configure gRPC client-side load balancing
 
@@ -31,7 +25,7 @@ Client-side load balancing is configured when a channel is created. The two comp
 * The resolver, which resolves the addresses for the channel. Resolvers support getting addresses from an external source. This is also known as service discovery.
 * The load balancer, which creates connections and picks the address that a gRPC call will use.
 
-Built-in implementations of resolvers and load balancers are included in [Grpc.Net.Client](https://www.nuget.org/packages/Grpc.Net.Client). Load balancing can also be extended by [writing custom resolvers and load balancers](#write-custom-resolvers-and-load-balancers).
+Built-in implementations of resolvers and load balancers are included in [`Grpc.Net.Client`](https://www.nuget.org/packages/Grpc.Net.Client). Load balancing can also be extended by [writing custom resolvers and load balancers](#write-custom-resolvers-and-load-balancers).
 
 Addresses, connections and other load balancing state is stored in a `GrpcChannel` instance. A channel must be reused when making gRPC calls for load balancing to work correctly.
 
@@ -41,7 +35,7 @@ The resolver is configured using the address a channel is created with. The [URI
 
 | Scheme   | Type                    | Description |
 | -------- | ----------------------- | ----------- |
-| `dns`    | `DnsResolverFactory`    | Resolves addresses by querying the hostname for [DNS service records](https://en.wikipedia.org/wiki/SRV_record). |
+| `dns`    | `DnsResolverFactory`    | Resolves addresses by querying the hostname for [DNS address records](https://wikipedia.org/wiki/List_of_DNS_record_types#A). |
 | `static` | `StaticResolverFactory` | Resolves addresses that the app has specified. Recommended if an app already knows the addresses it calls. |
 
 A channel doesn't directly call a URI that matches a resolver. Instead, a matching resolver is created and used to resolve the addresses.
@@ -84,7 +78,7 @@ By default, a DNS resolver is refreshed if a connection is interrupted. The DNS 
 
 ```csharp
 services.AddSingleton<ResolverFactory>(
-    () => new DnsResolverFactory(refreshInterval: TimeSpan.FromSeconds(30)));
+    sp => new DnsResolverFactory(refreshInterval: TimeSpan.FromSeconds(30)));
 ```
 
 The preceding code creates a `DnsResolverFactory` with a refresh interval and registers it with dependency injection. For more information on using a custom-configured resolver, see [Configure custom resolvers and load balancers](#configure-custom-resolvers-and-load-balancers).
@@ -99,8 +93,8 @@ A static resolver is provided by `StaticResolverFactory`. This resolver:
 ```csharp
 var factory = new StaticResolverFactory(addr => new[]
 {
-    new DnsEndPoint("localhost", 80),
-    new DnsEndPoint("localhost", 81)
+    new BalancerAddress("localhost", 80),
+    new BalancerAddress("localhost", 81)
 });
 
 var services = new ServiceCollection();
@@ -128,18 +122,18 @@ This example creates a new <xref:Microsoft.Extensions.DependencyInjection.Servic
 
 ## Configure load balancer
 
-A load balancer is specified in a [service config](https://github.com/grpc/grpc/blob/master/doc/service_config.md) using the `ServiceConfig.LoadBalancingConfigs` collection. Two load balancers are built-in and map to load balancer config names:
+A load balancer is specified in a [`service config`](https://github.com/grpc/grpc/blob/master/doc/service_config.md) using the `ServiceConfig.LoadBalancingConfigs` collection. Two load balancers are built-in and map to load balancer config names:
 
 | Name          | Type                            | Description |
 | ------------- | ------------------------------- | ----------- |
 | `pick_first`  | `PickFirstLoadBalancerFactory`  | Attempts to connect to addresses until a connection is successfully made. gRPC calls are all made to the first successful connection. |
 | `round_robin` | `RoundRobinLoadBalancerFactory` | Attempts to connect to all addresses. gRPC calls are distributed across all successful connections using [round-robin](https://www.nginx.com/resources/glossary/round-robin-load-balancing/) logic. |
 
-Service config is an abbreviation of service configuration and is represented by the `ServiceConfig` type. There are a couple of ways a channel can get a service config with a load balancer configured:
+`service config` is an abbreviation of service configuration and is represented by the `ServiceConfig` type. There are a couple of ways a channel can get a `service config` with a load balancer configured:
 
-* An app can specify a service config when a channel is created using `GrpcChannelOptions.ServiceConfig`.
-* Alternatively, a resolver can resolve a service config for a channel. This feature allows an external source to specify how its callers should perform load balancing. Whether a resolver supports resolving a service config is dependent on the resolver implementation. Disable this feature with `GrpcChannelOptions.DisableResolverServiceConfig`.
-* If no service config is provided, or the service config doesn't have a load balancer configured, the channel defaults to `PickFirstLoadBalancerFactory`.
+* An app can specify a `service config` when a channel is created using `GrpcChannelOptions.ServiceConfig`.
+* Alternatively, a resolver can resolve a `service config` for a channel. This feature allows an external source to specify how its callers should perform load balancing. Whether a resolver supports resolving a `service config` is dependent on the resolver implementation. Disable this feature with `GrpcChannelOptions.DisableResolverServiceConfig`.
+* If no `service config` is provided, or the `service config` doesn't have a load balancer configured, the channel defaults to `PickFirstLoadBalancerFactory`.
 
 ```csharp
 var channel = GrpcChannel.ForAddress(
@@ -156,7 +150,7 @@ var response = await client.SayHelloAsync(new HelloRequest { Name = "world" });
 
 The preceding code:
 
-* Specifies a `RoundRobinLoadBalancerFactory` in the service config.
+* Specifies a `RoundRobinLoadBalancerFactory` in the `service config`.
 * Starts the gRPC call `SayHello`:
   * `DnsResolverFactory` creates a resolver that gets addresses for the hostname `my-example-host`.
   * Round-robin load balancer attempts to connect to all resolved addresses.
@@ -197,30 +191,27 @@ A resolver:
 * Can optionally provide a service configuration.
 
 ```csharp
-public class FileResolver : Resolver
+public class FileResolver : PollingResolver
 {
     private readonly Uri _address;
-    private Action<ResolverResult> _listener;
+    private readonly int _port;
 
-    public ExampleResolver(Uri address)
+    public ExampleResolver(Uri address, int defaultPort, ILoggerFactory loggerFactory)
+        : base(loggerFactory)
     {
         _address = address;
+        _port = defaultPort;
     }
 
-    public override async Task RefreshAsync(CancellationToken cancellationToken)
+    public override async Task ResolveAsync(CancellationToken cancellationToken)
     {
         // Load JSON from a file on disk and deserialize into endpoints.
         var jsonString = await File.ReadAllTextAsync(_address.LocalPath);
         var results = JsonSerializer.Deserialize<string[]>(jsonString);
-        var addresses = results.Select(r => new DnsEndPoint(r, 80));
+        var addresses = results.Select(r => new BalancerAddress(r, _port)).ToArray();
 
         // Pass the results back to the channel.
-        _listener(ResolverResult.ForResult(addresses, serviceConfig: null));
-    }
-
-    public override void Start(Action<ResolverResult> listener)
-    {
-        _listener = listener;
+        Listener(ResolverResult.ForResult(addresses));
     }
 }
 
@@ -231,7 +222,7 @@ public class FileResolverFactory : ResolverFactory
 
     public override Resolver Create(ResolverOptions options)
     {
-        return new FileResolver(options.Address);
+        return new FileResolver(options.Address, options.DefaultPort, options.LoggerFactory);
     }
 }
 ```
@@ -239,7 +230,8 @@ public class FileResolverFactory : ResolverFactory
 In the preceding code:
 
 * `FileResolverFactory` implements `ResolverFactory`. It maps to the `file` scheme and creates `FileResolver` instances.
-* `FileResolver` implements `Resolver`. In `RefreshAsync`:
+* `FileResolver` implements `PollingResolver`. `PollingResolver` is an abstract base type that makes it easy to implement a resolver with asynchronous logic by overriding `ResolveAsync`.
+* In `ResolveAsync`:
   * The file URI is converted to a local path. For example, `file:///c:/addresses.json` becomes `c:\addresses.json`.
   * JSON is loaded from disk and converted into a collection of addresses.
   * Listener is called with results to let the channel know that addresses are available.
@@ -277,7 +269,7 @@ public class RandomBalancer : SubchannelsLoadBalancer
 
         public RandomPicker(List<Subchannel> subchannels)
         {
-            _subchannels = readySubchannels;
+            _subchannels = subchannels;
         }
 
         public override PickResult Pick(PickContext context)
@@ -336,7 +328,7 @@ The preceding code:
 * Creates a channel configured to use the new implementations:
   * `ServiceCollection` is built into an `IServiceProvider` and set to `GrpcChannelOptions.ServiceProvider`.
   * Channel address is `file:///c:/data/addresses.json`. The `file` scheme maps to `FileResolverFactory`.
-  * Service config load balancer name is `random`. Maps to `RandomLoadBalancerFactory`.
+  * `service config` load balancer name is `random`. Maps to `RandomLoadBalancerFactory`.
 
 ## Why load balancing is important
 

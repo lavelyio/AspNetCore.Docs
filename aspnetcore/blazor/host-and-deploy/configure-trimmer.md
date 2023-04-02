@@ -5,13 +5,14 @@ description: Learn how to control the Intermediate Language (IL) Linker (Trimmer
 monikerRange: '>= aspnetcore-5.0'
 ms.author: riande
 ms.custom: mvc
-ms.date: 11/09/2021
-no-loc: [Home, Privacy, Kestrel, appsettings.json, "ASP.NET Core Identity", cookie, Cookie, Blazor, "Blazor Server", "Blazor WebAssembly", "Identity", "Let's Encrypt", Razor, SignalR]
+ms.date: 11/08/2022
 uid: blazor/host-and-deploy/configure-trimmer
 ---
 # Configure the Trimmer for ASP.NET Core Blazor
 
-::: moniker range=">= aspnetcore-6.0"
+This article explains how to control the Intermediate Language (IL) Linker (Trimmer) when building a Blazor app.
+
+:::moniker range=">= aspnetcore-6.0"
 
 Blazor WebAssembly performs [Intermediate Language (IL)](/dotnet/standard/managed-code#intermediate-language--execution) trimming to reduce the size of the published output. By default, trimming occurs when publishing an app.
 
@@ -24,7 +25,7 @@ To configure the Trimmer, see the [Trimming options](/dotnet/core/deploying/trim
 * Stop the Trimmer from trimming specific assemblies.
 * "Root" assemblies for trimming.
 * Surface warnings for reflected types by setting the `<SuppressTrimAnalysisWarnings>` property to `false` in the project file.
-* Control symbol trimming and degugger support.
+* Control symbol trimming and debugger support.
 * Set Trimmer features for trimming framework library features.
 
 ## Additional resources
@@ -32,9 +33,9 @@ To configure the Trimmer, see the [Trimming options](/dotnet/core/deploying/trim
 * [Trim self-contained deployments and executables](/dotnet/core/deploying/trimming/trim-self-contained)
 * <xref:blazor/performance#intermediate-language-il-trimming>
 
-::: moniker-end
+:::moniker-end
 
-::: moniker range=">= aspnetcore-5.0 < aspnetcore-6.0"
+:::moniker range=">= aspnetcore-5.0 < aspnetcore-6.0"
 
 Blazor WebAssembly performs [Intermediate Language (IL)](/dotnet/standard/managed-code#intermediate-language--execution) trimming to reduce the size of the published output. By default, trimming occurs when publishing an app.
 
@@ -47,7 +48,7 @@ To configure the Trimmer, see the [Trimming options](/dotnet/core/deploying/trim
 * Stop the Trimmer from trimming specific assemblies.
 * "Root" assemblies for trimming.
 * Surface warnings for reflected types by setting the `<SuppressTrimAnalysisWarnings>` property to `false` in the project file.
-* Control symbol trimming and degugger support.
+* Control symbol trimming and debugger support.
 * Set Trimmer features for trimming framework library features.
 
 ## Additional resources
@@ -55,4 +56,4 @@ To configure the Trimmer, see the [Trimming options](/dotnet/core/deploying/trim
 * [Trim self-contained deployments and executables](/dotnet/core/deploying/trimming/trim-self-contained)
 * <xref:blazor/performance#intermediate-language-il-trimming>
 
-::: moniker-end
+:::moniker-end

@@ -1,7 +1,8 @@
----
-no-loc: [Home, Privacy, Kestrel, appsettings.json, "ASP.NET Core Identity", cookie, Cookie, Blazor, "Blazor Server", "Blazor WebAssembly", "Identity", "Let's Encrypt", Razor, SignalR]
----
-## Troubleshoot
+### Logging
+
+*This section applies to ASP.NET Core 7.0 or later.*
+
+To enable debug or trace logging for Blazor WebAssembly authentication, see <xref:blazor/fundamentals/logging>.
 
 ### Common errors
 
@@ -27,10 +28,10 @@ no-loc: [Home, Privacy, Kestrel, appsettings.json, "ASP.NET Core Identity", cook
 
   * Decode the contents of a JSON Web Token (JWT) used for authenticating a client or accessing a server web API, depending on where the problem is occurring. For more information, see [Inspect the content of a JSON Web Token (JWT)](#inspect-the-content-of-a-json-web-token-jwt).
   
-  The documenation team responds to document feedback and bugs in articles (open an issue from the **This page** feedback section) but is unable to provide product support. Several public support forums are available to assist with troubleshooting an app. We recommend the following:
+  The documentation team responds to document feedback and bugs in articles (open an issue from the **This page** feedback section) but is unable to provide product support. Several public support forums are available to assist with troubleshooting an app. We recommend the following:
   
   * [Stack Overflow (tag: `blazor`)](https://stackoverflow.com/questions/tagged/blazor)
-  * [ASP.NET Core Slack Team](http://tattoocoder.com/aspnet-slack-sign-up/)
+  * [ASP.NET Core Slack Team](https://join.slack.com/t/aspnetcore/shared_invite/zt-1mv5487zb-EOZxJ1iqb0A0ajowEbxByQ)
   * [Blazor Gitter](https://gitter.im/aspnet/Blazor)
   
   *The preceding forums are not owned or controlled by Microsoft.*
@@ -94,13 +95,17 @@ A functioning app may fail immediately after upgrading either the .NET Core SDK 
 > [!NOTE]
 > Use of package versions incompatible with the app's target framework isn't supported. For information on a package, use the [NuGet Gallery](https://www.nuget.org) or [FuGet Package Explorer](https://www.fuget.org).
 
-### Run the Server app
+### Run the `Server` app
 
-When testing and troubleshooting a hosted Blazor solution, make sure that you're running the app from the **`Server`** project. For example in Visual Studio, confirm that the Server project is highlighted in **Solution Explorer** before you start the app with any of the following approaches:
+When testing and troubleshooting a hosted Blazor WebAssembly [solution](xref:blazor/tooling#visual-studio-solution-file-sln), make sure that you're running the app from the **`Server`** project.
 
-* Select the **Run** button.
-* Use **Debug** > **Start Debugging** from the menu.
-* Press <kbd>F5</kbd>.
+### Inspect the user
+
+The [ASP.NET Core framework's test assets](https://github.com/dotnet/aspnetcore/tree/main/src/Components/WebAssembly/testassets) include a [Blazor WebAssembly client app](https://github.com/dotnet/aspnetcore/tree/main/src/Components/WebAssembly/testassets/Wasm.Authentication.Client) with a `User` component that can be useful in troubleshooting. The `User` component can be used directly in apps or serve as the basis for further customization:
+
+[`User` test component in the `dotnet/aspnetcore` GitHub repository](https://github.com/dotnet/aspnetcore/blob/main/src/Components/WebAssembly/testassets/Wasm.Authentication.Client/Pages/User.razor)
+
+[!INCLUDE[](~/includes/aspnetcore-repo-ref-source-links.md)]
 
 ### Inspect the content of a JSON Web Token (JWT)
 
